@@ -51,7 +51,9 @@ def Crossword_Puzzle(word_set, grid, N, M, count):
                     the_grid[row][col + 1] = '*'
                     count = 1 + rec_insert(k-1, count, the_grid)
                     usedwords.add(words[k])
-                    break
+                    solutions_queue[the_grid] = count
+                    return count, the_grid
+                    
             
                     
                 Otherwise, we go vertically (in other words perpendicularly)given a common letter in adjacency to position 0 of words[k]
@@ -63,12 +65,14 @@ def Crossword_Puzzle(word_set, grid, N, M, count):
                         So, Populate
                         the_grid[j][i] = letterj for j, letterj in enumerate(words[k][l])
                         Go to smaller word if possible
-                        count = 1 + rec_insert(k-1, count, the_grid)
+                        count, the_grid = 1 + rec_insert(k-1, count, the_grid)
                         usedwords.add(words[k])
-                        break
+                        solutions_queue[the_grid] = count
+                        return count, the_grid
+                        
                     else: We cannot populate grid this way so we continue (next row)
                     
-            if words[k] in usedwords: break
+            if words[k] in usedwords: break out of embodying for
               
                 
         
@@ -80,7 +84,8 @@ def Crossword_Puzzle(word_set, grid, N, M, count):
         reverse them
         
         OTHERWISE, we move on to the next recursive step k-1 and skip this word
-        if k >= 0 and (words[k] not in usedwords: count += rec_insert(k-1, count, the_grid))
+        if k >= 0 and (words[k] not in usedwords: 
+            count += rec_insert(k-1, count, the_grid))
         
            
         End of recursive step: This solution is complete by this point, so we can append it in queue
