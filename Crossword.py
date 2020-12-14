@@ -49,11 +49,13 @@ def Crossword_Puzzle(word_set, grid, N, M, count):
                     then word fits in column irrespective of common letters because No LETTERS at all in that space
                     the_grid[row][col] = words[k][col] for col in range(len(words[k]))
                     the_grid[row][col + 1] = '*'
-                    count = count, 1 + rec_insert(k-1, count, the_grid)
+                    count = 1 + rec_insert(k-1, count, the_grid)
                     usedwords.add(words[k])
+                    break
+            
                     
                 Otherwise, we go vertically (in other words perpendicularly)given a common letter in adjacency to position 0 of words[k]
-                elif letteri in words[k] for i, letteri in enumerate(the_grid[row][i])
+                if words[k] not in usedwords and  letteri in words[k] for i, letteri in enumerate(the_grid[row][i])
                 and words[k].index(letteri) == 0:That letter must be first letter of word
                     Populate column with word if path is clear or has another common letter in right spot
                     if j == words[k].index(the_grid[row + j][i]) for j in range (len(words[k])):
@@ -63,10 +65,14 @@ def Crossword_Puzzle(word_set, grid, N, M, count):
                         Go to smaller word if possible
                         count = 1 + rec_insert(k-1, count, the_grid)
                         usedwords.add(words[k])
+                        break
+                    else: We cannot populate grid this way so we continue (next row)
+                    
+            if words[k] in usedwords: break
+              
                 
-                else: We cannot populate grid this way so we continue (next row)
         
-        if words[k] not in used:
+        if words[k] not in usedwords:
         VERTICALLY:
         We basically do the same as in Horizontally except we primarily operate vertically then seek
         for a horizontal (or perpendicular) correspondance
@@ -74,7 +80,7 @@ def Crossword_Puzzle(word_set, grid, N, M, count):
         reverse them
         
         OTHERWISE, we move on to the next recursive step k-1 and skip this word
-        if k >= 0 and (words[k] not in grid: count += rec_insert(k-1, count, the_grid))
+        if k >= 0 and (words[k] not in usedwords: count += rec_insert(k-1, count, the_grid))
         
            
         End of recursive step: This solution is complete by this point, so we can append it in queue
