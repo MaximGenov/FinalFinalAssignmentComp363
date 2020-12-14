@@ -9,7 +9,7 @@ Store English words in List
 
 grid = []*N for i in range(M) Empty Grid to be filled
 
-@memo
+
 def Crossword_Puzzle(word_set, grid, N, M, count):
     
     SORT it according to length of words in ascending order==>Smallest words will be dropped first
@@ -33,23 +33,26 @@ def Crossword_Puzzle(word_set, grid, N, M, count):
     count = 1
     solution_queue = {} dictionary to conserve various solutions of crossword
     k = len(words)-1
-    def rec_insert(k, numwords, agrid):
+    def rec_insert(k, numwords, agrid, used):
         the_grid = agrid Get back to original grid with only one word
-        if k < 0: return 0 (OUT OF RANGE)
-        count = rec_insert(k-1, count) Get to smallest word in terms of length
+        usedwords = used
+        if k < 0: return 1 (OUT OF RANGE) because of the random word fleshed in grid
+        count = rec_insert(k-1, count, the_grid) Get to smallest word in terms of length
         if words[k] in used: return count Continue with recursion moving upward
         Try to shoehorn word in any possible way in grid HORIZONTALLY & VERTICALLY, memoize only the LARGEST count value
         
+        
         HORIZONTALLY:
-        for row in range(len(the_grid)):
-            for column in range(len(the_grid[row])):
+        for row in range(len(the_grid)): ([0, M])
+            for column in range(len(the_grid[row])): ([0, N]) ==> N X M maximum
                 if the_grid[row][col] == None for col in range(column, column + len(words[k] - 1):
                     then word fits in column irrespective of common letters because No LETTERS at all in that space
                     the_grid[row][col] = words[k][col] for col in range(len(words[k]))
                     the_grid[row][col + 1] = '*'
-                    count = 1 + rec_insert(k-1, count)
+                    count = count, 1 + rec_insert(k-1, count, the_grid)
+                    usedwords.add(words[k])
                     
-                Otherwise, we go vertically (in other words perpendicularly)given a common letter
+                Otherwise, we go vertically (in other words perpendicularly)given a common letter in adjacency to position 0 of words[k]
                 elif letteri in words[k] for i, letteri in enumerate(the_grid[row][i])
                 and words[k].index(letteri) == 0:That letter must be first letter of word
                     Populate column with word if path is clear or has another common letter in right spot
@@ -58,16 +61,20 @@ def Crossword_Puzzle(word_set, grid, N, M, count):
                         So, Populate
                         the_grid[j][i] = letterj for j, letterj in enumerate(words[k][l])
                         Go to smaller word if possible
-                        count = 1 + rec_insert(k, count, the_grid)
+                        count = 1 + rec_insert(k-1, count, the_grid)
+                        usedwords.add(words[k])
                 
                 else: We cannot populate grid this way so we continue (next row)
         
-        
+        if words[k] not in used:
         VERTICALLY:
         We basically do the same as in Horizontally except we primarily operate vertically then seek
         for a horizontal (or perpendicular) correspondance
         The only thing we need to do is nest the outer for in the inner or in other words just
         reverse them
+        
+        OTHERWISE, we move on to the next recursive step k-1 and skip this word
+        if k >= 0 and (words[k] not in grid: count += rec_insert(k-1, count, the_grid))
         
            
         End of recursive step: This solution is complete by this point, so we can append it in queue
@@ -75,9 +82,36 @@ def Crossword_Puzzle(word_set, grid, N, M, count):
         
         return count
     
-    print(f"Number of words inserted: {count}\n")
-    return rec_insert(len(words), count = 1, grid)
+    optimalsolutioncount = rec_insert(len(words), count = 1, grid)
+    optimalsolution = max(solutions_queue, solutions_queue.get) ==> grid with most words = OPTIMAL SOLUTION
+    print(f"Optimal Grid: {optimalsolution}\n") ==>Optimal grid
+    return optimalsolutioncount
     
+    
+BRIEF WRITE-UP:
+The filling of this English word puzzle begins with a set of k words being stored in a list.
+A random integer number generator selects a word directly from the list and fleshes it in the middle row of the grid
+which takes the form of a list. That grid is used to form the puzzle.
+A greedy algorithm is used to store as many words as possible. Like the knapsack problem,
+it seeks to form the best solution with brute force.
+After the list is sorted in ascending order so that the smallest words enter the grid first to maximize the 
+number of inserted words, a recursive method is called upon to delve onto k = 0: the first word from k = len(words).
+Our base case is when k < 0: then we return 1 which represents the random number fleshed in the grid. As soon as we reach
+the last recursive phase, we attempt to place the word in each row horizontally. If there is no vacancy and the word’s 
+letters do not find a correspondence with those in the row, we move on to the next one. If we find one, then the algorithm
+returns the amount of words it managed to fit thus far. If we still have not managed to fit the word, we try matching it 
+with one of the letters in the row but fitting it perpendicularly. If still nothing, we restart the process with fitting
+them first vertically and then perpendicularly to corresponding letters (horizontally). The count of words fitted starts
+at one at each recursive step before we increment at each successful fit. These steps take a dominating time complexity
+of O(N x M) at worst case since we don’t always need to search the whole grid to find a viable insertion.
+That said a memo for the recursive function might have quickened the algorithm. However, it would not be convenient
+with the way it operates because the algorithm initially starts by fitting only one element: the smallest. Then, it moves
+up trying to fit k elements starting with the largest words[k]. A memo would conserve the result of k = 0 through k = len(words)
+when the fitting might be different for each word in various recursive phases as its placement in the grid must adapt with that of
+a previously placed word.
+The time complexity is likely to be polynomial given that the running time varies upon N and M.
+If N and M are of similar values, then it may be, more narrowly, quadratic.
+
     
     
 '''
